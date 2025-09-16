@@ -1,0 +1,102 @@
+ services:
+   # API Gateway
+   api-gateway:
+     build:
+       context: ./gateway
+     container_name: api-gateway
+     ports:
+       - "8080:8080"
+     depends_on:
+       - user-service
+       - flight-service
+     networks:
+       - airport-network
+     environment:
+       SPRING_CLOUD_GATEWAY_CORS_ALLOWED_ORIGINS: "*"
+       SPRING_CLOUD_GATEWAY_CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
+       SPRING_CLOUD_GATEWAY_CORS_ALLOWED_HEADERS: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+   # Clientes Service
+   user-service:
+     build:
+       context: ./usuarios
+     container_name: user-service
+     ports:
+       - "8081:8081"
+     networks:
+       - airport-network
+     depends_on:
+       - mysql-db
+     environment:
+       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/airport_db
+       SPRING_DATASOURCE_USERNAME: tup
+       SPRING_DATASOURCE_PASSWORD: tup
+       #Front-End
+   frontend-service:
+     build:
+       context: ./flight
+     container_name: frontend-service
+     ports:
+       - "80:80"
+     networks:
+       - airport-network
+
+       # Flight Service
+   flight-service:
+      build:
+         context: ./flights
+      container_name: flight-service
+      ports:
+         - "8082:8082"
+      networks:
+         - airport-network
+      depends_on:
+         - mysql-db
+      environment:
+         SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/airport_db
+         SPRING_DATASOURCE_USERNAME: tup
+         SPRING_DATASOURCE_PASSWORD: tup
+   # Reservas Service
+   booking-service:
+     build:
+       context: ./bookings
+     container_name: booking-service
+     ports:
+       - "8083:8083"
+     networks:
+       - airport-network
+     depends_on:
+       - mysql-db
+     environment:
+       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/airport_db
+       SPRING_DATASOURCE_USERNAME: tup
+       SPRING_DATASOURCE_PASSWORD: tup
+    # Servicio de base de datos MySQL
+   mysql-db:
+      image: mysql:8.0
+      container_name: airport_db-mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: rootpassword
+        MYSQL_DATABASE: airport_db
+        MYSQL_USER: tup
+        MYSQL_PASSWORD: tup
+      ports:
+          - "3307:3306"
+      expose:
+          - "3307"
+      volumes:
+          - mysql-data:/var/lib/mysql
+      healthcheck:
+          test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+      networks:
+          - airport-network
+
+   # Volumen persistente para la base de datos
+ volumes:
+     mysql-data:
+
+ networks:
+     airport-network:
+       driver: bridge
