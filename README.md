@@ -48,6 +48,7 @@ curl --location 'http://flights:8080/flights' \
     }
   ]
 }'
+
 Aquí el json de ejemplo que debe manejar:
 
 {
@@ -70,6 +71,7 @@ Aquí el json de ejemplo que debe manejar:
     }
   ]
 }
+
 Reservations
 Deben implementar un endpoint que permita crear nuevas reservas para un vuelo (reservations), siempre que no se hayan vendido ya todos los asientos. También deben poderse consultar las reservas por su id.
 
@@ -117,6 +119,7 @@ Aquí el json de ejemplo que debe manejar:
       }
     ]
   }
+  
 Check-in
 Deben implementar un endpoint que permita hacer el check-in de una reserva. El check-in debe cambiar el estado de la reserva a CHECKED-IN y guardar el asiento que se le asignó a los pasajeros. Para esto implementaremos un PUT sobre reservations, donde recibimos el ID de la reserva y el mismo body de reservation pero con los datos cambiados.
 
@@ -142,6 +145,7 @@ curl --location 'http://flights:8080/reservations' \
       }
     ]
   }'
+  
 Requerimientos NO funcionales
 La aplicación debe ser desarrollada en Java 17.
 Debe tener al menos 80% de cobertura de test unitarios.
